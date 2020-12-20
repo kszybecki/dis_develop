@@ -4,14 +4,16 @@
 
 import time
 import TextProvider
-import ExtractEntitiesAndRelations
+import RelationExtractor
+import EntityExtractor
 import re
 
 #t_start = time.time()
 
 
 text_provider = TextProvider.TextProvider()
-extractor = ExtractEntitiesAndRelations.ExtractEntitiesAndRelations()
+re_extor = RelationExtractor.RelationExtractor()
+#en_extor = EntityExtractor.EntityExtractor()
 
 while(text_provider.has_next()):
     text = text_provider.get_next()
@@ -24,7 +26,6 @@ while(text_provider.has_next()):
 
     for sentence in sentences:        
         print(sentence)
-
 
     #identify entities
 

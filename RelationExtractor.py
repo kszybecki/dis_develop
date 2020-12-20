@@ -6,13 +6,13 @@ sys.path.insert(0, 'C:\\master_repos\\dis_develop\\OpenNRE')
 
 import opennre
 
-class ExtractEntitiesAndRelations:
+class RelationExtractor:
 
     model = "model"
 
     #constructor
     def __init__(self):
-        ExtractEntitiesAndRelations.model = opennre.get_model('wiki80_bert_softmax')
+        RelationExtractor.model = opennre.get_model('wiki80_bert_softmax')
 
 
 
