@@ -8,7 +8,7 @@ from pathlib import Path
 class TextProvider:
 
     #adjust directory to your location
-    rootdir = "C:\\master_repos\\disseration_develop\\enron_email_dataset"
+    rootdir = "C:\\master_repos\\dis_develop\\enron_email_dataset"
 
     file_name_list = []
     name_dir_list = []    
@@ -72,16 +72,17 @@ class TextProvider:
         result = result.replace('\n', ' ').replace('\t', ' ')
 
         #remove URLs 
-        result = re.sub('http:\/\/.*?[ ]', '', result)
+        result = re.sub(r'http:\/\/.*?[ ]', '', result)
 
         #remove text with format begins with 2 or more '-----<some text>-----'
         result = re.sub('[-]{2,}[A-Za-z0-9]*[ ][A-Za-z0-9]*[-]{2,}', ' ', result)
 
         #remove everything inside opening and closing bracket
-        result = re.sub('\[[A-Za-z0-9]*\]', '', result)
+        result = re.sub(r'\[[A-Za-z0-9]*\]', '', result)
 
-        #remove all other characters not a number or letter except for periods, forward slashes, @ symbol
-        result = re.sub('[^A-Za-z0-9./@-]', ' ', result)
+        #remove all other characters not a number or letter except for:
+        # ./@-'
+        result = re.sub('[^A-Za-z0-9./@-\']', ' ', result)
 
         #replac multiple space with one space
         result = re.sub('[ ]{2,}', ' ', result)
