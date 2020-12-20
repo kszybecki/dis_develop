@@ -18,11 +18,11 @@ while(text_provider.has_next()):
     #split text into sentences and remove spaces
     sentences = list(map(str.strip, re.split(r'\.[ ]?', text)))
     #filter out empty string list items
-    sentences = list(filter(lambda x: x.strip() != '', sentences))
+    sentences = list(filter(lambda x: x.strip() != '', sentences))  
 
-    
+#len(test_string.split()) 
 
-    for sentence in sentences:
+    for sentence in sentences:        
         print(sentence)
 
 

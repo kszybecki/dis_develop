@@ -1,12 +1,6 @@
 
 
 
-
-
-
-
-
-
 import sys
 sys.path.insert(0, 'C:\\master_repos\\dis_develop\\OpenNRE')
 
