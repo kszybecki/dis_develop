@@ -84,7 +84,7 @@ class TextProvider:
         # ./@-'
         result = re.sub('[^A-Za-z0-9./@-\']', ' ', result)
 
-        #replac multiple space with one space
+        #replace multiple space with one space
         result = re.sub('[ ]{2,}', ' ', result)
 
         return result
