@@ -10,7 +10,7 @@
 
 
 import sys
-sys.path.insert(0, 'C:\\master_repos\\disseration_develop_old\\OpenNRE')
+sys.path.insert(0, 'C:\\master_repos\\dis_develop\\OpenNRE')
 
 import opennre
 
