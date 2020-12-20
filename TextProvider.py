@@ -82,7 +82,7 @@ class TextProvider:
 
         #remove all other characters not a number or letter except for:
         # ./@-'
-        result = re.sub('[^A-Za-z0-9./@-\']', ' ', result)
+        result = re.sub('[^A-Za-z0-9./@-]', ' ', result)
 
         #replace multiple space with one space
         result = re.sub('[ ]{2,}', ' ', result)

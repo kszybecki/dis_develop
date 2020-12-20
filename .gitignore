@@ -4,3 +4,5 @@ launch.json
 OpenNRE
 .vscode
 enron_email_dataset
+__pycache__/ExtractEntitiesAndRelations.cpython-38.pyc
+__pycache__/TextProvider.cpython-38.pyc
