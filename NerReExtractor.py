@@ -35,13 +35,14 @@ class NerReExtractor:
     def __init__(self):
         #initialize pre-trained models
         NerReExtractor.re_model = opennre.get_model('wiki80_bert_softmax')
-        NerReExtractor.nlp_model = pipeline("ner", grouped_entities=True)
+        NerReExtractor.nlp_model = pipeline("ner", model="dslim/bert-base-NER", grouped_entities=True)
 
     def get_result(self, sentence):
         return ""
 
     def extract_entity_pair(self, sentence):
         #should I take the entities in a sentence with the greatest accuracy confidence?
+        #looks like I'll have to remove duplicates from the list
         return NerReExtractor.nlp_model(sentence)
 
     def extract_relation(self, sentence, entity1_idx, entity2_idx):
