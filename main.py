@@ -4,17 +4,13 @@
 
 import time
 import TextProvider
-import RelationExtractor
-import EntityExtractor
+import NerReExtractor
 import re
 
-#t_start = time.time()
-
-
 text_provider = TextProvider.TextProvider()
-re_extor = RelationExtractor.RelationExtractor()
-#en_extor = EntityExtractor.EntityExtractor()
+ner_re_extractor = NerReExtractor.NerReExtractor()
 
+#t_start = time.time()
 while(text_provider.has_next()):
     text = text_provider.get_next()
     #split text into sentences and remove spaces
@@ -22,33 +18,21 @@ while(text_provider.has_next()):
     #filter out empty string list items
     sentences = list(filter(lambda x: x.strip() != '', sentences))  
 
-    #since I require 2 entities to predict relations, I should ignore sentences less than 3 words in length
-    #len(test_string.split()) 
-
     for sentence in sentences:  
-        #ignore sentences with length less than 3 words
+        #since I require 2 entities to predict relations, ignore sentences less than 3 words in length
         if len(sentence.split()) < 3:
             continue
+        #perform sentence level extraction
+        result = ner_re_extractor.get_result(sentence)
+
+        #create schema (relational/data warehouse)
 
         print(sentence)
 
 
-    #identify entities
-    #should I take the entities in a sentence with the greatest accuracy confidence?
+    
 
 
-
-
-    #identify relations between entities
-
-
-
-    #create schema (relational/data warehouse)
-
-
-
-
-
-
+# AT THE END TO RECORD TIME IT TOOK
 #t_stop = time.time()
 #print((t_stop - t_start) / 60)

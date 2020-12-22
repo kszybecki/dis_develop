@@ -1,11 +1,25 @@
 
-#split by \.[ ]? and trim on both sides
 
-import re
 
-text = "This is a test.. What the dead... I dont't understand why.   This is a new sentence. "
 
-sentences = list(map(str.strip, re.split(r'\.[ ]?', text)))
-sentences = list(filter(lambda x: x.strip() != '', sentences))
 
-print(sentences)
+
+
+
+
+#contains the following format:
+# {
+#   "entities": [<entity 1>, <entity 2>], 
+#   "key2": [4, 5, 6]
+# }
+
+
+# entities list contains
+#  each entity pair:  
+#    key => entity name ("per", "loc", "date"), value being entity instance
+#    key => "relation": "<relation value>"
+#    key => "sentence": "<sentence where this appeared>"
+#    key => "sentence_id": "<unique id for sentence>"
+#           each sentence should have a unique value as to not duplicate them
+#   
+

@@ -7,7 +7,6 @@ from pathlib import Path
 
 class TextProvider:
 
-    #adjust directory to your location
     rootdir = "C:\\master_repos\\dis_develop\\enron_email_dataset"
 
     file_name_list = []
