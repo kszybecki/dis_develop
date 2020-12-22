@@ -1,23 +1,8 @@
 
 
+import re
 
 #class EntityExtractor
-
-
-from transformers import AutoModelForTokenClassification, AutoTokenizer, pipeline
-import torch
-
-
-nlp = pipeline("ner")
-
-sequence = "Hugging Face Inc. is a company based in New York City. Its headquarters are in DUMBO, therefore very" \
-           "close to the Manhattan Bridge which is visible from the window."
-
-print(nlp(sequence))
-
-
-# model = AutoModelForTokenClassification.from_pretrained("dbmdz/bert-large-cased-finetuned-conll03-english")
-# tokenizer = AutoTokenizer.from_pretrained("bert-base-cased")
 
 # label_list = [
 #     "O",       # Outside of a named entity
@@ -31,14 +16,27 @@ print(nlp(sequence))
 #     "I-LOC"    # Location
 # ]
 
-# sequence = "Hugging Face Inc. is a company based in New York City. Its headquarters are in DUMBO, therefore very" \
-#            "close to the Manhattan Bridge."
 
-# # Bit of a hack to get the tokens with the special tokens
-# tokens = tokenizer.tokenize(tokenizer.decode(tokenizer.encode(sequence)))
-# inputs = tokenizer.encode(sequence, return_tensors="pt")
 
-# outputs = model(inputs)[0]
-# predictions = torch.argmax(outputs, dim=2)
+sequence2 = "Today is September 1, 2014. I am Kris Szybecki."
 
-# print([(token, label_list[prediction]) for token, prediction in zip(tokens, predictions[0].tolist())])
+# from transformers import  pipeline
+# nlp = pipeline("ner", grouped_entities=True)
+# print(nlp(sequence2))
+
+
+# to extract dates but only in number form
+# dateRegEx = re.compile(r'(\d{1,4}([.\-/])\d{1,2}([.\-/])\d{1,4})') 
+# mo = dateRegEx.search('Today''s date is 06/06/2018') 
+# print(mo.group(1)) 
+
+#Sep|September 1, 2019
+# you don't know the context of the date 
+# but you can see which sentence 
+result = re.findall(r'\s\w+\s\d{1,2},\s\d{4}', sequence2)
+for r in result:
+    print(r)
+
+
+
+
