@@ -22,7 +22,9 @@ while(text_provider.has_next()):
         #since I require 2 entities to predict relations, ignore sentences less than 3 words in length
         if len(sentence.split()) < 3:
             continue
+
         #perform sentence level extraction
+        #result here will be a json string containing eveything I need to create the schema
         result = ner_re_extractor.get_result(sentence)
 
         #create schema (relational/data warehouse)

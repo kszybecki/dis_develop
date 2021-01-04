@@ -41,8 +41,6 @@ class NerReExtractor:
         return ""
 
     def extract_entity_pair(self, sentence):
-        #should I take the entities in a sentence with the greatest accuracy confidence?
-        #looks like I'll have to remove duplicates from the list
         return NerReExtractor.nlp_model(sentence)
 
     def extract_relation(self, sentence, entity1_idx, entity2_idx):
