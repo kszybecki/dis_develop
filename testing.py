@@ -23,20 +23,46 @@
 #           each sentence should have a unique value as to not duplicate them
 #   
 
-import json
+import re
+from datetime import datetime
+
+dateRegEx1 = re.compile(r'(\d{1,4}([.\-/])\d{1,2}([.\-/])\d{1,4})') 
+dateRegEx2 = re.compile(r'(\s\w+\s\d{1,2},\s\d{4})')
+
+results1 = re.findall(dateRegEx1, "Today's date is 06/06/2018 and also 01-12-2021 and also 2020-01-01 and also 1999/01/12") 
+
+#also test if there is no error
+for result in results1:
+    date_result = None
+    try:
+        date_result = datetime.strptime(result[0].strip(), r'%d/%m/%Y')    
+        print(date_result.date())
+        continue
+    except ValueError:
+        pass
+    try:
+        date_result = datetime.strptime(result[0].strip(), r'%Y/%m/%d')    
+        print(date_result.date())
+        continue
+    except ValueError:
+        pass
+    try:
+        date_result = datetime.strptime(result[0].strip(), r'%d-%m-%Y')    
+        print(date_result.date())
+        continue
+    except ValueError:
+        pass
+    try:
+        date_result = datetime.strptime(result[0].strip(), r'%Y-%m-%d')    
+        print(date_result.date())
+        continue
+    except ValueError:
+        pass
+
+# results2 = re.findall(dateRegEx2, "On November 15, 2019 he went and got something ")
+
+# for result in results2:
+#     print(result.strip())
 
 
-results = []
-results.append('{"entity_group": "I-PER", "score": 0.59, "word": "Kris Szybecki"}')
-results.append('{"entity_group": "I-ORG", "score": 0.9987585544586182, "word": "Agilent Inc"}')
-results.append('{"entity_group": "I-ORG", "score": 0.9990890423456827, "word": "Manitoba Hydro"}')
-results.append('{"entity_group": "I-ORG", "score": 0.9990890423456827, "word": "Manitoba Hydro"}')
 
-no_duplicates = []
-
-for entity in results:
-    json_entity = json.loads(entity)
-      
-    length = len(list(filter(lambda x: x['word'] == json_entity['word'], no_duplicates)))
-    if length == 0:
-        no_duplicates.append(json_entity)
