@@ -1,10 +1,11 @@
 
 
 import re
-from transformers import  pipeline
 import json
+from transformers import  pipeline
+from dateutil.parser import parse
 
-#only use entities where the confidence threashold is above 60%
+
 CONFIDENCE_THREASHOLD = .60
 dateRegEx1 = re.compile(r'(\d{1,4}([.\-/])\d{1,2}([.\-/])\d{1,4})') 
 dateRegEx2 = re.compile(r'\s\w+\s\d{1,2},\s\d{4}')
@@ -18,14 +19,6 @@ sentence2 = "I Kris Szybecki where born on July 4, 2005 and my email address is 
 # result = nlp(sequence2)
 # for r in result:
 #     print(r["entity_group"] + " " + r["word"])
-
-entity = {
-    "entity_group": "I-PER", 
-    "word": "Kris Szybecki",
-    "begin_idx": 5,
-    "end_idx": 10
-}
-
 
 ner_results = []
 regex_results = []
@@ -46,11 +39,11 @@ for entity in ner_results:
     #filter out duplicate entities
     length = len(list(filter(lambda x: x['value'] == json_entity['word'], entity_list)))
     if length == 0:
-        #store begin and end index for each entity
         begin_idx = sentence1.index(json_entity['word'])
         end_idx = begin_idx + len(json_entity['word'])
         entity_list.append(
             {
+                "index": begin_idx,
                 "name": json_entity['entity_group'],
                 "value": json_entity['word'],
                 "begin_idx": begin_idx,
@@ -61,24 +54,6 @@ for entity in ner_results:
 
 
 
-
-
-
-
-#-----------------------
-
-#extracting entities other than ones by NER
-
-# to extract dates but only in number form
-# mo = dateRegEx.search('Today''s date is 06/06/2018') 
-# print(mo.group(1)) 
-
-#Sep|September 1, 2019
-# you don't know the context of the date 
-# but you can see which sentence 
-# result = re.findall(r'\s\w+\s\d{1,2},\s\d{4}', sequence2)
-# for r in result:
-#     print(r)
 
 # regex for emails
 # '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'

@@ -24,45 +24,47 @@
 #   
 
 import re
-from datetime import datetime
+from dateutil.parser import parse
+
+sentence = "Today's date is 06/06/2018 and also 01-12-2021 and also 2020-01-01 and also 1999/31/31"
 
 dateRegEx1 = re.compile(r'(\d{1,4}([.\-/])\d{1,2}([.\-/])\d{1,4})') 
 dateRegEx2 = re.compile(r'(\s\w+\s\d{1,2},\s\d{4})')
 
-results1 = re.findall(dateRegEx1, "Today's date is 06/06/2018 and also 01-12-2021 and also 2020-01-01 and also 1999/01/12") 
+regex_results = []
+entity_list = []
+
+# entity_list.append(
+#     {
+#         "index": begin_idx,
+#         "name": json_entity['entity_group'],
+#         "value": json_entity['word'],
+#         "begin_idx": begin_idx,
+#         "end_idx": end_idx
+#     }
+# )
+
+
+results1 = re.findall(dateRegEx1, sentence) 
 
 #also test if there is no error
-for result in results1:
-    date_result = None
+for result in results1:    
     try:
-        date_result = datetime.strptime(result[0].strip(), r'%d/%m/%Y')    
-        print(date_result.date())
-        continue
-    except ValueError:
-        pass
-    try:
-        date_result = datetime.strptime(result[0].strip(), r'%Y/%m/%d')    
-        print(date_result.date())
-        continue
-    except ValueError:
-        pass
-    try:
-        date_result = datetime.strptime(result[0].strip(), r'%d-%m-%Y')    
-        print(date_result.date())
-        continue
-    except ValueError:
-        pass
-    try:
-        date_result = datetime.strptime(result[0].strip(), r'%Y-%m-%d')    
-        print(date_result.date())
-        continue
+        dt = parse(result[0].strip())
+        begin_idx = sentence.index(result[0].strip())
+        end_idx = begin_idx + len(result[0].strip())
+        print(dt.date())
     except ValueError:
         pass
 
-# results2 = re.findall(dateRegEx2, "On November 15, 2019 he went and got something ")
+results2 = re.findall(dateRegEx2, "On November 15, 2019 he went and got something ")
 
-# for result in results2:
-#     print(result.strip())
+for result in results2:
+    try:
+        dt = parse(result.strip())
+        print(dt.date())
+    except ValueError:
+        pass
 
 
 
