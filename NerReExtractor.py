@@ -8,6 +8,8 @@
 #     "I-ORG",   # Organisation
 #     "B-LOC",   # Beginning of a location right after another location
 #     "I-LOC"    # Location
+#     "DATE"     # Date 
+#     "EMAIL"    # Email
 # ]
 
 
@@ -38,10 +40,17 @@ class NerReExtractor:
         NerReExtractor.nlp_model = pipeline("ner", model="dslim/bert-base-NER", grouped_entities=True)
 
     def get_result(self, sentence):
+        NerReExtractor.sentence = sentence
         return ""
 
-    def extract_entity_pair(self, sentence):
+    def extract_entities(self, sentence):
         return NerReExtractor.nlp_model(sentence)
 
     def extract_relation(self, sentence, entity1_idx, entity2_idx):
         return NerReExtractor.re_model.infer({'text': sentence, 'h': {'pos': (entity1_idx.start, entity1_idx.end)}, 't': {'pos': (entity2_idx.start, entity2_idx.end)}})
+
+    
+
+# get sentence
+# get cleansed list of entities through NER but also regex
+# do loop 
