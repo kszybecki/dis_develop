@@ -29,6 +29,8 @@ ner_results.append('{"entity_group": "I-ORG", "score": 0.9987585544586182, "word
 ner_results.append('{"entity_group": "I-ORG", "score": 0.9990890423456827, "word": "Manitoba Hydro"}')
 ner_results.append('{"entity_group": "I-ORG", "score": 0.9990890423456827, "word": "Manitoba Hydro"}')
 
+
+#this is good
 for entity in ner_results:
     json_entity = json.loads(entity)
 
@@ -43,7 +45,6 @@ for entity in ner_results:
         end_idx = begin_idx + len(json_entity['word'])
         entity_list.append(
             {
-                "index": begin_idx,
                 "name": json_entity['entity_group'],
                 "value": json_entity['word'],
                 "begin_idx": begin_idx,

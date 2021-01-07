@@ -19,7 +19,7 @@ while(text_provider.has_next()):
     sentences = list(filter(lambda x: x.strip() != '', sentences))  
 
     for sentence in sentences:  
-        #since I require 2 entities to predict relations, ignore sentences less than 3 words in length
+        #since 2 entities are required to predict relations, ignore sentences less than 3 words in length
         if len(sentence.split()) < 3:
             continue
 
