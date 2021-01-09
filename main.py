@@ -1,7 +1,5 @@
 
 
-
-
 import time
 import TextProvider
 import NerReExtractor
@@ -18,14 +16,15 @@ while(text_provider.has_next()):
     #filter out empty string list items
     sentences = list(filter(lambda x: x.strip() != '', sentences))  
 
-    for sentence in sentences:  
+    for index, sentence in enumerate(sentences):
         #since 2 entities are required to predict relations, ignore sentences less than 3 words in length
         if len(sentence.split()) < 3:
             continue
 
-        #perform sentence level extraction
-        #result here will be a json string containing eveything I need to create the schema
-        result = ner_re_extractor.get_result(sentence)
+        # perform sentence level extraction
+        # include index of sentence as a key for joining entities to sentences
+        sentence = {"sentence_id": index, "sentence": sentence}
+        result = ner_re_extractor.get_entities_and_relations(sentence)
 
         #create schema (relational/data warehouse)
 

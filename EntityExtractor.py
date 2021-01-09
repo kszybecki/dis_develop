@@ -12,22 +12,33 @@ class EntityExtractor:
     dateRegEx2 = re.compile(r'\s\w+\s\d{1,2},\s\d{4}')
     emailRegEx = re.compile(r'[\w\.-]+@[\w\.-]+(?:\.[\w]+)+')
 
-    sentence = "I am Kris Szybecki and I work at Agilent Inc. 06/06/2018  but also worked at smokerjones@pm.me Manitoba Hydro since July 4, 2005 . "
-
-# This works
-# nlp = pipeline("ner", grouped_entities=True)
-# result = nlp(sequence2)
-# for r in result:
-#     print(r["entity_group"] + " " + r["word"])
-
     ner_results = []
     regex_results = []
     entity_list = []
+    ner_pipeline = ""
+    
+    def __init__(self):
+        #initialize pre-trained name entitiy recognition model
+        EntityExtractor.ner_pipeline = pipeline("ner", grouped_entities=True)
 
-    ner_results.append('{"entity_group": "I-PER", "score": 0.9987585544586182, "word": "Kris Szybecki"}')
-    ner_results.append('{"entity_group": "I-ORG", "score": 0.9987585544586182, "word": "Agilent Inc"}')
-    ner_results.append('{"entity_group": "I-ORG", "score": 0.9990890423456827, "word": "Manitoba Hydro"}')
-    ner_results.append('{"entity_group": "I-ORG", "score": 0.9990890423456827, "word": "Manitoba Hydro"}')
+    def get_entities_from_sentence(self, sentence):
+        EntityExtractor.entity_list = []
+
+        EntityExtractor.sentence = sentence["sentence"]
+        EntityExtractor.sentence_id = sentence["sentence_id"]
+
+        self.extract_entities_using_model()
+        self.insert_ner_entities()
+        EntityExtractor.regex_results = re.findall(EntityExtractor.dateRegEx1, EntityExtractor.sentence) 
+        EntityExtractor.regex_results.extend(re.findall(EntityExtractor.dateRegEx2, EntityExtractor.sentence))
+        self.insert_regex_entities("DATE")
+        EntityExtractor.regex_results = re.findall(EntityExtractor.emailRegEx, EntityExtractor.sentence)
+        self.insert_regex_entities("EMAIL")
+
+        #do I need to log the count of entities found here? for evaluation purposes, 
+        #maybe log as a file the counts
+
+        return EntityExtractor.entity_list
 
     def get_insert_index(self, begin_idx):
         index = 0
@@ -40,30 +51,35 @@ class EntityExtractor:
 
         return (index + 1)    
 
-    def insert_ner_entities(self, ner_results):
-        for entity in ner_results:
-            json_entity = json.loads(entity)
+    def extract_entities_using_model(self):
+        EntityExtractor.ner_results = EntityExtractor.ner_pipeline(EntityExtractor.sentence)
+
+    def insert_ner_entities(self):
+        for entity in EntityExtractor.ner_results:
+
+            #ignore entities that contain partial results
+            if "#" in entity["word"]:
+                continue
 
             #remove entities with score less than CONFIDENCE_THREASHOLD
-            if float(json_entity['score']) < EntityExtractor.CONFIDENCE_THREASHOLD:
+            if float(entity["score"]) < EntityExtractor.CONFIDENCE_THREASHOLD:
                 continue  
 
             #filter out duplicate entities
-            length = len(list(filter(lambda x: x['value'] == json_entity['word'], EntityExtractor.entity_list)))
+            length = len(list(filter(lambda x: x['value'] == entity["word"], EntityExtractor.entity_list)))
             if length == 0:
-                begin_idx = sentence.index(json_entity['word'])
-                end_idx = begin_idx + len(json_entity['word'])
-                EntityExtractor.entity_list.append(
-                    {
-                        "name": json_entity['entity_group'],
-                        "value": json_entity['word'],
+                begin_idx = EntityExtractor.sentence.index(entity["word"])
+                end_idx = begin_idx + len(entity["word"])
+                EntityExtractor.entity_list.append({
+                        "name": entity["entity_group"],
+                        "value": entity["word"],
                         "begin_idx": begin_idx,
-                        "end_idx": end_idx
-                    }
-                )
+                        "end_idx": end_idx,
+                        "sentence_id": EntityExtractor.sentence_id                    
+                })
 
-    def insert_regex_entities(self, regex_results, entity_type):
-        for result in regex_results:    
+    def insert_regex_entities(self, entity_type):
+        for result in EntityExtractor.regex_results:    
             try:
                 result_string = ""
                 entity_value = ""
@@ -78,33 +94,18 @@ class EntityExtractor:
                 else:
                     entity_value = result_string
                                 
-                begin_idx = sentence.index(result_string)
+                begin_idx = EntityExtractor.sentence.index(result_string)
                 end_idx = begin_idx + len(result_string)
 
                 #get insert index to perserve order the entities appeard in, in the sentence
                 insert_index = self.get_insert_index(begin_idx)
-                EntityExtractor.entity_list.insert(insert_index, 
-                    {
+                EntityExtractor.entity_list.insert(insert_index, {
                         "name": entity_type,
                         "value": entity_value,
                         "begin_idx": begin_idx,
-                        "end_idx": end_idx
-                    }
-                )
+                        "end_idx": end_idx,
+                        "sentence_id": EntityExtractor.sentence_id                    
+                })
             except ValueError:
                 pass  
-
-# insert_ner_entities(ner_results)
-
-# regex_results = re.findall(dateRegEx1, sentence) 
-# regex_results.extend(re.findall(dateRegEx2, sentence))
-# insert_regex_entities(regex_results, "DATE")
-
-# regex_results = re.findall(emailRegEx, sentence)
-# insert_regex_entities(regex_results, "EMAIL")
-
-
-stop = "stop"
-
-
 
