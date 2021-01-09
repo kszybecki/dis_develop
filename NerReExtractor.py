@@ -16,7 +16,6 @@
 import sys
 sys.path.insert(0, 'C:\\master_repos\\dis_develop\\OpenNRE')
 
-import re 
 from transformers import  pipeline
 import opennre
 
