@@ -26,11 +26,8 @@ class NerReExtractor:
     nlp_model = ""
     sentence = ""
 
-    #contains the following format:
-    # {
-    #   "entities": [<entity 1>, <entity 2>], 
-    #   "key2": [4, 5, 6]
-    # }
+    #remember I need sentence ID
+
     result = ""
 
     #constructor
