@@ -7,7 +7,7 @@ from dateutil.parser import parse
 
 class EntityExtractor:
 
-    CONFIDENCE_THREASHOLD = .60
+    CONFIDENCE_THRESHOLD = .60
     dateRegEx1 = re.compile(r'(\d{1,4}([.\-/])\d{1,2}([.\-/])\d{1,4})') 
     dateRegEx2 = re.compile(r'\s\w+\s\d{1,2},\s\d{4}')
     emailRegEx = re.compile(r'[\w\.-]+@[\w\.-]+(?:\.[\w]+)+')
@@ -24,7 +24,7 @@ class EntityExtractor:
     def get_entities_from_sentence(self, sentence):
         EntityExtractor.entity_list = []
 
-        EntityExtractor.sentence = sentence["sentence"]
+        EntityExtractor.sentence = sentence["value"]
         EntityExtractor.sentence_id = sentence["sentence_id"]
 
         self.extract_entities_using_model()
@@ -61,8 +61,8 @@ class EntityExtractor:
             if "#" in entity["word"]:
                 continue
 
-            #remove entities with score less than CONFIDENCE_THREASHOLD
-            if float(entity["score"]) < EntityExtractor.CONFIDENCE_THREASHOLD:
+            #remove entities with score less than CONFIDENCE_THRESHOLD
+            if float(entity["score"]) < EntityExtractor.CONFIDENCE_THRESHOLD:
                 continue  
 
             #filter out duplicate entities
