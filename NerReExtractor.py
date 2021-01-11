@@ -1,17 +1,9 @@
-# label_list = [
-#     "O",       # Outside of a named entity
-#     "B-MISC",  # Beginning of a miscellaneous entity right after another miscellaneous entity
-#     "I-MISC",  # Miscellaneous entity
-#     "B-PER",   # Beginning of a person's name right after another person's name
-#     "I-PER",   # Person's name
-#     "B-ORG",   # Beginning of an organisation right after another organisation
-#     "I-ORG",   # Organisation
-#     "B-LOC",   # Beginning of a location right after another location
-#     "I-LOC"    # Location
-#     "DATE"     # Date 
-#     "EMAIL"    # Email
-# ]
 
+# "I-PER"   # Person's name
+# "I-ORG"   # Organisation
+# "I-LOC"    # Location
+# "DATE"     # Date 
+# "EMAIL"    # Email
 
 import sys
 sys.path.insert(0, 'C:\\master_repos\\dis_develop\\OpenNRE')
@@ -39,19 +31,16 @@ class NerReExtractor:
         relations = []
         # since 2 entities are required for relation extraction, skip extraction for entity_list with one entity
         if len(entity_list) > 1:
-            #extract relation for all permutations of entities
-            
+            #extract relation for all permutations of entities            
             for i, entity1 in enumerate(entity_list):      
                 j = i + 1
                 while j < len(entity_list):        
                     entity2 = entity_list[j]
-                    #here I can put in counts to see of the potential candidates, how many relations where actually found
-                    relation = self.extract_relation(entity1, entity2, sentence)    
-
+                    # LOGGING - here I can put in counts to see of the potential candidates, how many relations where actually found
+                    relation = self.extract_relation(entity1, entity2, sentence)
                     if relation[1] > NerReExtractor.RE_CONFIDANCE_THRESHOLD:
                         relation[0].replace(" ", "_")
-                        #if relation is not None:
-                        
+                        #if relation is not None:                        
                         relations.append({
                             "entity1_name": entity1["name"],
                             "entity1_value": entity1["value"],
@@ -59,7 +48,6 @@ class NerReExtractor:
                             "entity2_value": entity2["value"],
                             "relation": relation[0]
                         })
-
                     j = j + 1      
 
         return relations

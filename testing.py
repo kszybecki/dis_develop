@@ -1,24 +1,30 @@
 
 
-# from transformers import  pipeline
 
-# 
-# #dslim/bert-base-NER
-# ner_pipeline = pipeline("ner", grouped_entities=True)
-# result = ner_pipeline(sentence)
-# stop = "stop"
+import os.path
+from os import path
 
+import sqlite3
+from sqlite3 import Error
 
-import sys
-sys.path.insert(0, 'C:\\master_repos\\dis_develop\\OpenNRE')
-import opennre
+database_path = "C:\\master_repos\\dis_develop\\SQLite\\enron_db.db"
 
-sentence = "NEWS ANALYSIS Sylvia Carr P2P NOW FOR BIZ"
+conn = None
 
-re_model = opennre.get_model('wiki80_bert_softmax')
+def create_sentence_table(cursor):
+    cursor.execute(
+        ''' 
+            CREATE TABLE Sentence (
+                SentenceId INT PRIMARY KEY,
+                Sentence TEXT
+            )
+        '''
+    )
+    conn.commit()
 
-result = re_model.infer({'text': sentence, \
-        'h': {'pos': (0, 12)}, \
-        't': {'pos': (14, 25)}})
+try:
+    conn = sqlite3.connect(database_path)      
+except Error as e:
+    print(e)
 
-stop = "stop"
+create_sentence_table(conn.cursor())
