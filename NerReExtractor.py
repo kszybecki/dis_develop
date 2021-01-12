@@ -1,10 +1,4 @@
 
-# "I-PER"   # Person's name
-# "I-ORG"   # Organisation
-# "I-LOC"    # Location
-# "DATE"     # Date 
-# "EMAIL"    # Email
-
 import sys
 sys.path.insert(0, 'C:\\master_repos\\dis_develop\\OpenNRE')
 

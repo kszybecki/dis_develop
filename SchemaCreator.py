@@ -7,16 +7,6 @@ from os import path
 import sqlite3
 from sqlite3 import Error
 
-'''
-EntityExtractor.entity_list.append({
-        "name": entity["entity_group"],
-        "value": entity["word"],
-        "begin_idx": begin_idx,
-        "end_idx": end_idx,
-        "sentence_id": EntityExtractor.sentence_id                    
-})
-'''
-
 class SchemaCreator:
 
     enron_relational_path = "C:\\master_repos\\dis_develop\\SQLite\\enron_relational.db"
@@ -44,41 +34,58 @@ class SchemaCreator:
                 entities.append(entity)
 
             #check if entity instance already exists
-            SchemaCreator.conn.cursor.execute(
-                "INSERT INTO " + entity["name"] + " (Value) " + \
-                "VALUES (" + entity["value"] + ")"
+            SchemaCreator.conn.cursor().execute(
+                "SELECT * FROM " + entity["name"] + " WHERE Value = '" + entity["value"] + "'"
             )
-            SchemaCreator.conn.commit()
+
+            result = SchemaCreator.conn.cursor().fetchone()
+            if result is None:
+                SchemaCreator.conn.cursor().execute(
+                    "INSERT INTO " + entity["name"] + " (Value, SentenceId) " + \
+                    "VALUES ('" + entity["value"] + "', " + str(entity["sentence_id"]) +")"
+                )
+                SchemaCreator.conn.commit()
+            else:
+                #here
 
     def insert_sentence(self, sentence):
-        SchemaCreator.conn.cursor.execute(
-            "INSERT INTO Sentence (SentenceId, Sentence) " + \
-            "VALUES (" + sentence["sentence_id"] + ", " + sentence["value"] + ")"
+        SchemaCreator.conn.cursor().execute(
+            "INSERT INTO Sentence (SentenceId, Sentence) VALUES (" + str(sentence["sentence_id"]) + ", '" + sentence["value"] + "')"
         )
         SchemaCreator.conn.commit()
 
     def create_table(self, table_name):
-        SchemaCreator.conn.cursor.execute("CREATE TABLE IF NOT " + table_name + " (" + table_name + "Id INT PRIMARY KEY, Value TEXT)")
+        # create entity table
+        SchemaCreator.conn.cursor().execute(
+            "CREATE TABLE IF NOT EXISTS " + table_name + " (" + table_name + "Id INTEGER PRIMARY KEY, Value TEXT, SentenceId INTEGER)"
+            )
         SchemaCreator.conn.commit()
 
+        #create Sentence relation table
+        SchemaCreator.conn.cursor().execute(
+            "CREATE TABLE IF NOT EXISTS " + table_name + "Sentence (Value TEXT, SentenceId INTEGER, " + table_name + "Id)"
+            )
+        SchemaCreator.conn.commit()
+
+
     def create_sentence_table(self):
-        SchemaCreator.conn.cursor.execute(
-            ''' 
-                CREATE TABLE IF NOT Sentence (
-                    SentenceId INT PRIMARY KEY,
+        SchemaCreator.conn.cursor().execute(
+            """
+                CREATE TABLE IF NOT EXISTS Sentence (
+                    SentenceId INTEGER PRIMARY KEY,
                     Sentence TEXT
                 )
-            '''
+            """
         )
         SchemaCreator.conn.commit()
 
     def create_fact_table(self):
-        SchemaCreator.conn.cursor.execute(
-            ''' 
-                CREATE TABLE IF NOT Fact (
-                    FactId INT PRIMARY KEY
+        SchemaCreator.conn.cursor().execute(
+            """ 
+                CREATE TABLE IF NOT EXISTS Fact (
+                    FactId INTEGER PRIMARY KEY
                 )
-            '''
+            """
         )
         SchemaCreator.conn.commit()
 

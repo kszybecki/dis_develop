@@ -11,6 +11,7 @@ SCHEMA_TYPE = "Relational"
 text_provider = TextProvider.TextProvider()
 ner_re_extractor = NerReExtractor.NerReExtractor()
 schema_creator = SchemaCreator.SchemaCreator(SCHEMA_TYPE)
+
 GLOBAL_SENTENCE_ID = 0
 
 #t_start = time.time()
@@ -21,7 +22,9 @@ while(text_provider.has_next()):
     # filter out empty string list items
     sentences = list(filter(lambda x: x.strip() != '', sentences))  
 
-    for sentence in enumerate(sentences):
+    for sentence in sentences:
+        print(sentence)
+
         #since 2 entities are required to predict relations, ignore sentences less than 3 words in length
         if len(sentence.split()) < 3:
             continue
@@ -33,17 +36,15 @@ while(text_provider.has_next()):
         schema_creator.insert_sentence(sentence)
 
         entities = ner_re_extractor.get_entities(sentence)
-
-
         schema_creator.insert_entities(entities, sentence)
 
-        if SCHEMA_TYPE == "Relational":
-            relations = ner_re_extractor.get_relations(entities, sentence)
+        # if SCHEMA_TYPE == "Relational":
+        #     relations = ner_re_extractor.get_relations(entities, sentence)
 
         schema_creator.tear_down()
 
         GLOBAL_SENTENCE_ID += 1
-        print(sentence)
+        
 
 
     

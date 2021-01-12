@@ -1,5 +1,12 @@
 
 
+# "I-PER"   # Person's name
+# "I-ORG"   # Organisation
+# "I-LOC"    # Location
+# "DATE"     # Date 
+# "EMAIL"    # Email
+
+
 import re
 import json
 from transformers import  pipeline
@@ -70,8 +77,9 @@ class EntityExtractor:
             if length == 0:
                 begin_idx = EntityExtractor.sentence.index(entity["word"])
                 end_idx = begin_idx + len(entity["word"])
+                entity_name = self.exchange_entity_name(entity["entity_group"])
                 EntityExtractor.entity_list.append({
-                        "name": entity["entity_group"],
+                        "name": entity_name,
                         "value": entity["word"],
                         "begin_idx": begin_idx,
                         "end_idx": end_idx,
@@ -109,3 +117,14 @@ class EntityExtractor:
             except ValueError:
                 pass  
 
+    def exchange_entity_name(self, value):
+        if value == "I-ORG":
+            return "Organization"
+        if value == "I-PER":
+            return "Person"
+        if value == "I-LOC":
+            return "Location"
+        if value == "DATE":
+            return "Date"
+        if value == "EMAIL":
+            return "Email"
