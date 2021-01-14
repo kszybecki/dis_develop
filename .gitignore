@@ -6,3 +6,4 @@ OpenNRE
 enron_email_dataset
 SQLite
 __pycache__
+sentence_log.txt

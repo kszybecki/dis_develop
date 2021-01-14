@@ -8,6 +8,8 @@ import re
 
 SCHEMA_TYPE = "Relational"
 
+sentence_log_file = open(r"C:\\master_repos\\dis_develop\\logs\sentence_log.txt", "a")
+
 text_provider = TextProvider.TextProvider()
 ner_re_extractor = NerReExtractor.NerReExtractor()
 schema_creator = SchemaCreator.SchemaCreator(SCHEMA_TYPE)
@@ -22,8 +24,9 @@ while(text_provider.has_next()):
     # filter out empty string list items
     sentences = list(filter(lambda x: x.strip() != '', sentences))  
 
-    for sentence in sentences:
-        print(sentence)
+    for sentence in sentences:        
+        print( sentence + "\n")
+        sentence_log_file.write(sentence + "\n\n")
 
         #since 2 entities are required to predict relations, ignore sentences less than 3 words in length
         if len(sentence.split()) < 3:
@@ -43,6 +46,7 @@ while(text_provider.has_next()):
 
         GLOBAL_SENTENCE_ID += 1
         
+sentence_log_file.close()
 schema_creator.tear_down()
 
     
