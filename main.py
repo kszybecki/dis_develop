@@ -39,13 +39,11 @@ while(text_provider.has_next()):
         schema_creator.insert_entities(entities, sentence)
 
         # if SCHEMA_TYPE == "Relational":
-        #     relations = ner_re_extractor.get_relations(entities, sentence)
-
-        schema_creator.tear_down()
+        #     relations = ner_re_extractor.get_relations(entities, sentence)       
 
         GLOBAL_SENTENCE_ID += 1
         
-
+schema_creator.tear_down()
 
     
 

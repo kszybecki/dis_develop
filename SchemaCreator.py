@@ -11,7 +11,7 @@ class SchemaCreator:
 
     enron_relational_path = "C:\\master_repos\\dis_develop\\SQLite\\enron_relational.db"
     enron_data_warehouse_path = "C:\\master_repos\\dis_develop\\SQLite\\enron_relational.db"
-    entities = []
+    prev_entities = []
 
     def __init__(self, schema_type):
         SchemaCreator.conn = None
@@ -28,25 +28,40 @@ class SchemaCreator:
     def insert_entities(self, entities, sentence):
         for entity in entities:
             #check if table already exists
-            length = len(list(filter(lambda x: x["name"] == entity["name"], SchemaCreator.entities)))            
+            length = len(list(filter(lambda x: x["name"] == entity["name"], SchemaCreator.prev_entities)))            
             if length == 0:
+                if entity["name"] == None:
+                    stop = ""
                 self.create_table(entity["name"])
-                entities.append(entity)
+                SchemaCreator.prev_entities.append(entity)
 
             #check if entity instance already exists
-            SchemaCreator.conn.cursor().execute(
+            fetch_cursor = SchemaCreator.conn.execute(
                 "SELECT * FROM " + entity["name"] + " WHERE Value = '" + entity["value"] + "'"
             )
-
-            result = SchemaCreator.conn.cursor().fetchone()
-            if result is None:
-                SchemaCreator.conn.cursor().execute(
-                    "INSERT INTO " + entity["name"] + " (Value, SentenceId) " + \
-                    "VALUES ('" + entity["value"] + "', " + str(entity["sentence_id"]) +")"
+            
+            last_row_id = None
+            result_row = fetch_cursor.fetchone()
+            if result_row is None:
+                insert_cursor = SchemaCreator.conn.cursor()
+                insert_cursor.execute(
+                    "INSERT INTO " + entity["name"] + " (Value) " + \
+                    "VALUES ('" + entity["value"] + "')"
                 )
                 SchemaCreator.conn.commit()
-            else:
-                #here
+                last_row_id = insert_cursor.lastrowid
+            else: 
+                # get ID value from primary key column
+                last_row_id = result_row[0]
+
+            self.insert_entity_sentence(entity, last_row_id, sentence["sentence_id"]) 
+
+    def insert_entity_sentence(self, entity, entity_id, sentence_id):
+        SchemaCreator.conn.cursor().execute(
+            "INSERT INTO " + entity["name"] + "Sentence (SentenceId, " + entity["name"] + "Id) " + \
+            "VALUES (" + str(sentence_id) + ", " + str(entity_id) + ")"
+        )    
+        SchemaCreator.conn.commit()
 
     def insert_sentence(self, sentence):
         SchemaCreator.conn.cursor().execute(
@@ -57,13 +72,13 @@ class SchemaCreator:
     def create_table(self, table_name):
         # create entity table
         SchemaCreator.conn.cursor().execute(
-            "CREATE TABLE IF NOT EXISTS " + table_name + " (" + table_name + "Id INTEGER PRIMARY KEY, Value TEXT, SentenceId INTEGER)"
+            "CREATE TABLE IF NOT EXISTS " + table_name + " (" + table_name + "Id INTEGER PRIMARY KEY, Value TEXT)"
             )
         SchemaCreator.conn.commit()
 
         #create Sentence relation table
         SchemaCreator.conn.cursor().execute(
-            "CREATE TABLE IF NOT EXISTS " + table_name + "Sentence (Value TEXT, SentenceId INTEGER, " + table_name + "Id)"
+            "CREATE TABLE IF NOT EXISTS " + table_name + "Sentence (SentenceId INTEGER, " + table_name + "Id INTEGER)"
             )
         SchemaCreator.conn.commit()
 

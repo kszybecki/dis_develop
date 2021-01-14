@@ -64,8 +64,12 @@ class EntityExtractor:
     def insert_ner_entities(self):
         for entity in EntityExtractor.ner_results:
 
+            #if "TX" in entity["word"]:
+               # stop = ""
+
             #ignore entities that contain partial results
-            if "#" in entity["word"]:
+            #ignore enities which have a MISC classification
+            if "#" in entity["word"] or "MISC" in entity["entity_group"]:
                 continue
 
             #remove entities with score less than CONFIDENCE_THRESHOLD
@@ -75,16 +79,20 @@ class EntityExtractor:
             #filter out duplicate entities
             length = len(list(filter(lambda x: x['value'] == entity["word"], EntityExtractor.entity_list)))
             if length == 0:
-                begin_idx = EntityExtractor.sentence.index(entity["word"])
-                end_idx = begin_idx + len(entity["word"])
-                entity_name = self.exchange_entity_name(entity["entity_group"])
-                EntityExtractor.entity_list.append({
-                        "name": entity_name,
-                        "value": entity["word"],
-                        "begin_idx": begin_idx,
-                        "end_idx": end_idx,
-                        "sentence_id": EntityExtractor.sentence_id                    
-                })
+                try:                    
+                    begin_idx = EntityExtractor.sentence.index(entity["word"])
+                    end_idx = begin_idx + len(entity["word"])
+                    entity_name = self.exchange_entity_name(entity["entity_group"])
+
+                    EntityExtractor.entity_list.append({
+                            "name": entity_name,
+                            "value": entity["word"],
+                            "begin_idx": begin_idx,
+                            "end_idx": end_idx,
+                            "sentence_id": EntityExtractor.sentence_id                    
+                    })
+                except: # if the predicted entity instance cannot be found in the sentence, ignore sentence
+                    continue
 
     def insert_regex_entities(self, entity_type):
         for result in EntityExtractor.regex_results:    
@@ -118,11 +126,11 @@ class EntityExtractor:
                 pass  
 
     def exchange_entity_name(self, value):
-        if value == "I-ORG":
+        if value == "I-ORG" or value == "B-ORG":
             return "Organization"
-        if value == "I-PER":
+        if value == "I-PER" or value == "B-PER":
             return "Person"
-        if value == "I-LOC":
+        if value == "I-LOC" or value == "B-LOC":
             return "Location"
         if value == "DATE":
             return "Date"
