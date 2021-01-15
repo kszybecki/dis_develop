@@ -26,12 +26,12 @@ class SchemaCreator:
             print(e)
 
     def insert_entities(self, entities, sentence):
+        if len(entities) > 0:
+            self.insert_sentence(sentence)
         for entity in entities:
             #check if table already exists
             length = len(list(filter(lambda x: x["name"] == entity["name"], SchemaCreator.prev_entities)))            
             if length == 0:
-                if entity["name"] == None:
-                    stop = ""
                 self.create_table(entity["name"])
                 SchemaCreator.prev_entities.append(entity)
 

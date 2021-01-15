@@ -35,9 +35,7 @@ while(text_provider.has_next()):
         perform sentence level extraction
         include index of sentence as a key for joining entities to sentences
         """
-        sentence = {"sentence_id": GLOBAL_SENTENCE_ID, "value": sentence}
-        schema_creator.insert_sentence(sentence)
-
+        sentence = {"sentence_id": GLOBAL_SENTENCE_ID, "value": sentence}      
         entities = ner_re_extractor.get_entities(sentence)
         schema_creator.insert_entities(entities, sentence)
 
