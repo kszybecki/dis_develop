@@ -14,7 +14,8 @@ from dateutil.parser import parse
 
 class EntityExtractor:
 
-    CONFIDENCE_THRESHOLD = .60
+    CONFIDENCE_THRESHOLD = .60    
+
     dateRegEx1 = re.compile(r'(\d{1,4}([.\-/])\d{1,2}([.\-/])\d{1,4})') 
     dateRegEx2 = re.compile(r'\s\w+\s\d{1,2},\s\d{4}')
     emailRegEx = re.compile(r'[\w\.-]+@[\w\.-]+(?:\.[\w]+)+')
@@ -29,18 +30,14 @@ class EntityExtractor:
         EntityExtractor.ner_pipeline = pipeline("ner", grouped_entities=True)
 
     def get_entities_from_sentence(self, sentence):
-        EntityExtractor.entity_list = []
-
-        EntityExtractor.sentence = sentence["value"]
-        EntityExtractor.sentence_id = sentence["sentence_id"]
-
-        self.extract_entities_using_model()
-        self.insert_ner_entities()
-        EntityExtractor.regex_results = re.findall(EntityExtractor.dateRegEx1, EntityExtractor.sentence) 
-        EntityExtractor.regex_results.extend(re.findall(EntityExtractor.dateRegEx2, EntityExtractor.sentence))
-        self.insert_regex_entities("DATE")
-        EntityExtractor.regex_results = re.findall(EntityExtractor.emailRegEx, EntityExtractor.sentence)
-        self.insert_regex_entities("EMAIL")
+        EntityExtractor.entity_list = [] 
+        self.extract_entities_using_model(sentence)
+        self.insert_ner_entities(sentence)
+        EntityExtractor.regex_results = re.findall(EntityExtractor.dateRegEx1, sentence) 
+        EntityExtractor.regex_results.extend(re.findall(EntityExtractor.dateRegEx2, sentence))
+        self.insert_regex_entities("DATE", sentence)
+        EntityExtractor.regex_results = re.findall(EntityExtractor.emailRegEx, sentence)
+        self.insert_regex_entities("EMAIL", sentence)
 
         #do I need to log the count of entities found here? for evaluation purposes, 
         #maybe log as a file the counts
@@ -58,10 +55,10 @@ class EntityExtractor:
 
         return (index + 1)    
 
-    def extract_entities_using_model(self):
-        EntityExtractor.ner_results = EntityExtractor.ner_pipeline(EntityExtractor.sentence)
+    def extract_entities_using_model(self, sentence):
+        EntityExtractor.ner_results = EntityExtractor.ner_pipeline(sentence)
 
-    def insert_ner_entities(self):
+    def insert_ner_entities(self, sentence):
         for entity in EntityExtractor.ner_results:
 
             #ignore entities that contain partial results
@@ -77,7 +74,7 @@ class EntityExtractor:
             length = len(list(filter(lambda x: x['value'] == entity["word"], EntityExtractor.entity_list)))
             if length == 0:
                 try:                    
-                    begin_idx = EntityExtractor.sentence.index(entity["word"])
+                    begin_idx = sentence.index(entity["word"])
                     end_idx = begin_idx + len(entity["word"])
                     entity_name = self.exchange_entity_name(entity["entity_group"])
 
@@ -85,13 +82,12 @@ class EntityExtractor:
                             "name": entity_name,
                             "value": entity["word"],
                             "begin_idx": begin_idx,
-                            "end_idx": end_idx,
-                            "sentence_id": EntityExtractor.sentence_id                    
+                            "end_idx": end_idx                 
                     })
                 except: # if the predicted entity instance cannot be found in the sentence, ignore sentence
                     continue
 
-    def insert_regex_entities(self, entity_type):
+    def insert_regex_entities(self, entity_type, sentence):
         for result in EntityExtractor.regex_results:    
             try:
                 result_string = ""
@@ -107,7 +103,7 @@ class EntityExtractor:
                 else:
                     entity_value = result_string
                                 
-                begin_idx = EntityExtractor.sentence.index(result_string)
+                begin_idx = sentence.index(result_string)
                 end_idx = begin_idx + len(result_string)
 
                 #get insert index to perserve order the entities appeard in, in the sentence
@@ -116,8 +112,7 @@ class EntityExtractor:
                         "name": entity_type,
                         "value": entity_value,
                         "begin_idx": begin_idx,
-                        "end_idx": end_idx,
-                        "sentence_id": EntityExtractor.sentence_id                    
+                        "end_idx": end_idx                 
                 })
             except ValueError:
                 pass  

@@ -9,10 +9,10 @@ from sqlite3 import Error
 
 class SchemaCreator:
 
+    entity_log_base_path = r"C:\\master_repos\\dis_develop\\logs\\"
     enron_relational_path = "C:\\master_repos\\dis_develop\\SQLite\\enron_relational.db"
     enron_data_warehouse_path = "C:\\master_repos\\dis_develop\\SQLite\\enron_relational.db"
     prev_entities = []
-
 
     def __init__(self, schema_type):
         SchemaCreator.conn = None
@@ -28,18 +28,18 @@ class SchemaCreator:
             print(e)
 
     def insert_relational_entities(self, entities, sentence):
+        sentence_id = -1
         if len(entities) > 0:
-            self.insert_sentence(sentence)
+            sentence_id = self.insert_sentence(sentence)
         for entity in entities:
-            #check if table already exists
-            length = len(list(filter(lambda x: x["name"] == entity["name"], SchemaCreator.prev_entities)))            
-            if length == 0:
-                self.create_table(entity)
-                SchemaCreator.prev_entities.append(entity)
-            
+            self.create_table(entity)      
+
             last_row_id = None
             result_row = self.check_if_entity_value_exists(entity)
-            if result_row is None:
+            if result_row is None:                
+                # log entities for validation
+                self.log_entity(entity)
+
                 table_name = self.get_table_name(entity)
                 insert_cursor = SchemaCreator.conn.cursor()
                 insert_cursor.execute(
@@ -52,7 +52,12 @@ class SchemaCreator:
                 # get ID value from primary key column
                 last_row_id = result_row[0]
 
-            self.insert_entity_sentence(entity, last_row_id, sentence["sentence_id"]) 
+            self.insert_entity_sentence(entity, last_row_id, sentence_id) 
+
+    # def insert_relations(self, relations):
+    #     for relation in relations:
+
+
 
     def check_if_entity_value_exists(self, entity):
         table_name = self.get_table_name(entity)
@@ -71,25 +76,43 @@ class SchemaCreator:
         SchemaCreator.conn.commit()
 
     def insert_sentence(self, sentence):
-        SchemaCreator.conn.cursor().execute(
-            "INSERT INTO Sentence (SentenceId, Sentence) VALUES (" + str(sentence["sentence_id"]) + ", '" + sentence["value"] + "')"
+        insert_cursor = SchemaCreator.conn.cursor()
+        insert_cursor.execute(
+            "INSERT INTO Sentence (Sentence) VALUES ('" + sentence + "')"
         )
         SchemaCreator.conn.commit()
+        return insert_cursor.lastrowid
+
+
+# relations.append({
+#     "entity1_name": entity1["name"],
+#     "entity1_value": entity1["value"],
+#     "entity2_name": entity2["name"],
+#     "entity2_value": entity2["value"],
+#     "relation": relation[0]
+# })
+
+    #def create_relation_table(self, relation):
+
 
     def create_table(self, entity):
         # create entity table
-        table_name = self.get_table_name(entity)
-        SchemaCreator.conn.cursor().execute(
-            "CREATE TABLE IF NOT EXISTS " + table_name + " (" + table_name + "Id INTEGER PRIMARY KEY, Value TEXT)"
-            )
-        SchemaCreator.conn.commit()
-
-        #create Sentence relation table
-        if SchemaCreator.schema_type == "Relational":
+        length = len(list(filter(lambda x: x["name"] == entity["name"], SchemaCreator.prev_entities)))            
+        if length == 0:
+            table_name = self.get_table_name(entity)
             SchemaCreator.conn.cursor().execute(
-                "CREATE TABLE IF NOT EXISTS " + entity["name"] + "Sentence (SentenceId INTEGER, " + entity["name"] + "Id INTEGER)"
+                "CREATE TABLE IF NOT EXISTS " + table_name + " (" + table_name + "Id INTEGER PRIMARY KEY, Value TEXT)"
                 )
             SchemaCreator.conn.commit()
+
+            #create Sentence relation table
+            if SchemaCreator.schema_type == "Relational":
+                SchemaCreator.conn.cursor().execute(
+                    "CREATE TABLE IF NOT EXISTS " + entity["name"] + "Sentence (SentenceId INTEGER, " + entity["name"] + "Id INTEGER)"
+                    )
+                SchemaCreator.conn.commit()
+
+            SchemaCreator.prev_entities.append(entity)   
 
     def get_table_name(self, entity):
         if SchemaCreator.schema_type == "Relational":
@@ -121,4 +144,11 @@ class SchemaCreator:
     def tear_down(self):
         if SchemaCreator.conn:
             SchemaCreator.conn.close()
+    
+    def log_entity(self, entity):
+        table_name = self.get_table_name(entity)
+        file_name = "entity_" + table_name + "_log.txt"
+        entity_log_file = open(SchemaCreator.entity_log_base_path + file_name, "a")
+        entity_log_file.write(entity["value"] + "\n")
+        entity_log_file.close()
 

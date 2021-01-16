@@ -47,7 +47,7 @@ class NerReExtractor:
         return relations
 
     def extract_relation(self, entity1, entity2, sentence):         
-        result = NerReExtractor.re_model.infer({'text': sentence["value"], \
+        result = NerReExtractor.re_model.infer({'text': sentence, \
              'h': {'pos': (entity1["begin_idx"], entity1["end_idx"])}, \
              't': {'pos': (entity2["begin_idx"], entity2["end_idx"])}})        
         return result

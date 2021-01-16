@@ -14,8 +14,6 @@ text_provider = TextProvider.TextProvider()
 ner_re_extractor = NerReExtractor.NerReExtractor()
 schema_creator = SchemaCreator.SchemaCreator(SCHEMA_TYPE)
 
-GLOBAL_SENTENCE_ID = 0
-
 #t_start = time.time()
 while(text_provider.has_next()):
     text = text_provider.get_next()
@@ -31,20 +29,16 @@ while(text_provider.has_next()):
         """ 
         perform sentence level extraction
         include index of sentence as a key for joining entities to sentences
-        """
-        sentence = {"sentence_id": GLOBAL_SENTENCE_ID, "value": sentence}      
+        """   
         entities = ner_re_extractor.get_entities(sentence)
 
         if SCHEMA_TYPE == "Relational":   
             schema_creator.insert_relational_entities(entities, sentence)
             #since 2 entities are required to predict relations, ignore sentences less than 3 words in length
-            # if len(sentence.split()) < 3:
+            # if len(sentence["value"].split()) < 3:
             #     continue
             # relations = ner_re_extractor.get_relations(entities, sentence)  
 
-  
-
-        GLOBAL_SENTENCE_ID += 1
         
 sentence_log_file.close()
 schema_creator.tear_down()
