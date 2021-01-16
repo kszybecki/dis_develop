@@ -33,7 +33,6 @@ class NerReExtractor:
                     # LOGGING - here I can put in counts to see of the potential candidates, how many relations where actually found
                     relation = self.extract_relation(entity1, entity2, sentence)
                     if relation[1] > NerReExtractor.RE_CONFIDANCE_THRESHOLD:
-                        relation[0].replace(" ", "_")
                         #if relation is not None:                        
                         relations.append({
                             "entity1_name": entity1["name"],
