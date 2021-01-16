@@ -26,21 +26,23 @@ while(text_provider.has_next()):
 
     for sentence in sentences:        
         print( sentence + "\n")
-        sentence_log_file.write(sentence + "\n\n")
+        #sentence_log_file.write(sentence + "\n\n")
 
-        #since 2 entities are required to predict relations, ignore sentences less than 3 words in length
-        if len(sentence.split()) < 3:
-            continue
         """ 
         perform sentence level extraction
         include index of sentence as a key for joining entities to sentences
         """
         sentence = {"sentence_id": GLOBAL_SENTENCE_ID, "value": sentence}      
         entities = ner_re_extractor.get_entities(sentence)
-        schema_creator.insert_entities(entities, sentence)
 
-        # if SCHEMA_TYPE == "Relational":
-        #     relations = ner_re_extractor.get_relations(entities, sentence)       
+        if SCHEMA_TYPE == "Relational":   
+            schema_creator.insert_relational_entities(entities, sentence)
+            #since 2 entities are required to predict relations, ignore sentences less than 3 words in length
+            # if len(sentence.split()) < 3:
+            #     continue
+            # relations = ner_re_extractor.get_relations(entities, sentence)  
+
+  
 
         GLOBAL_SENTENCE_ID += 1
         

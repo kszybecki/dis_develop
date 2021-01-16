@@ -64,9 +64,6 @@ class EntityExtractor:
     def insert_ner_entities(self):
         for entity in EntityExtractor.ner_results:
 
-            #if "TX" in entity["word"]:
-               # stop = ""
-
             #ignore entities that contain partial results
             #ignore enities which have a MISC classification
             if "#" in entity["word"] or "MISC" in entity["entity_group"]:
