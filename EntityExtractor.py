@@ -19,6 +19,7 @@ class EntityExtractor:
     dateRegEx1 = re.compile(r'(\d{1,4}([.\-/])\d{1,2}([.\-/])\d{1,4})') 
     dateRegEx2 = re.compile(r'\s\w+\s\d{1,2},\s\d{4}')
     emailRegEx = re.compile(r'[\w\.-]+@[\w\.-]+(?:\.[\w]+)+')
+    entity_log_base_path = r"C:\\master_repos\\dis_develop\\logs\\"
 
     ner_results = []
     regex_results = []
@@ -84,6 +85,8 @@ class EntityExtractor:
                             "begin_idx": begin_idx,
                             "end_idx": end_idx                 
                     })
+                    #log entity for validation
+                    self.log_entity(entity)
                 except: # if the predicted entity instance cannot be found in the sentence, ignore sentence
                     continue
 
@@ -128,3 +131,9 @@ class EntityExtractor:
             return "Date"
         if value == "EMAIL":
             return "Email"
+
+    def log_entity(self, entity):
+        file_name = "entity_" + entity["entity_group"] + "_log.txt"
+        entity_log_file = open(EntityExtractor.entity_log_base_path + file_name, "a")
+        entity_log_file.write(entity["word"] + "\n")
+        entity_log_file.close()

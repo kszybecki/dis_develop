@@ -4,6 +4,8 @@ launch.json
 OpenNRE
 .vscode
 enron_email_dataset
+enron_email_dataset_continued
 SQLite
 __pycache__
 logs
+old_code.txt

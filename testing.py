@@ -24,7 +24,16 @@
 #     if conn:
 #         conn.close()
 
+import os
+from pathlib import Path
+import re
 
-relation = "member".title().replace(" ", "") + "Relation"
+paragraph = "This is exactly what we need.  Would it possible to add the prior day for each of the dates below to the pivot table.  In order to validate the curve shift on the dates below we also need the prior days ending positions."
 
-print(relation)
+result = list(map(str.strip, re.split(r'\.[ ]+?', paragraph)))
+
+
+
+
+setup = ""
+

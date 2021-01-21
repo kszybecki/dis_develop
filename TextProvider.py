@@ -2,8 +2,10 @@
 
 import os
 import re
-from email.parser import Parser
+#from email.parser import Parser
 from pathlib import Path
+import email
+import mailparser
 
 class TextProvider:
 
@@ -19,8 +21,8 @@ class TextProvider:
     def __init__(self):
         TextProvider.name_dir_list = os.listdir(self.rootdir)
         directory = Path(self.rootdir + "\\" + TextProvider.name_dir_list[0] + "\\inbox")
-        files_to_read = list(filter(lambda y:y.is_file(), directory.iterdir()))
-        TextProvider.file_name_list = files_to_read
+        files_to_read = list(filter(lambda y:y.is_file(), directory.iterdir()))        
+        TextProvider.file_name_list = sorted(files_to_read, key=lambda x: int(x.name.replace("_", "")))
 
     #checks whethere more name dir exist to inspect
     def has_next(self):
@@ -51,40 +53,34 @@ class TextProvider:
         while os.path.exists(directory) == False:
             TextProvider.name_dir_idx += 1 
             directory = Path(self.rootdir + "\\" + TextProvider.name_dir_list[TextProvider.name_dir_idx] + "\\inbox")
+        
+        files_to_read = list(filter(lambda y:y.is_file(), directory.iterdir()))        
+        TextProvider.file_name_list = sorted(files_to_read, key=lambda x: int(x.name.replace("_", "")))                    
 
-        files_to_read = list(filter(lambda y:y.is_file(), directory.iterdir()))
-        TextProvider.file_name_list = files_to_read                      
-
-    def get_next(self):        
-        file_name =  TextProvider.file_name_list[TextProvider.file_idx] 
+    def get_next_email_text(self):        
+        file_name = TextProvider.file_name_list[TextProvider.file_idx] 
         print(file_name)
-        with open(file_name, "r") as f:
-            email = Parser().parsestr(f.read()) 
-            return self.clean_text(email.get_payload())
+        mail = mailparser.parse_from_file(file_name)
+        body_list = mail.body.splitlines()
+        return self.clean_text2(body_list)
 
-    def clean_text(self, text):
-        #remove any HTML tags
-        clean = re.compile('<.*?>')
-        result = re.sub(clean, '', text)
+    def clean_text2(self, body_list):
+        sentence_list = []
+        for text in body_list:
+            if ("-----Original Message-----" not in text and 
+               "From:" not in text and 
+               "To:" not in text and
+               "Subject:" not in text and 
+               "Sent" not in text and
+               "Cc:" not in text and
+               "<<" not in text and
+               "\t" not in text and
+               len(text.split()) > 2):
+               sentence_list.append(text)
 
-        #remove new-line, tab
-        result = result.replace('\n', ' ').replace('\t', ' ')
+        return sentence_list
+                
 
-        #remove URLs 
-        result = re.sub(r'http:\/\/.*?[ ]', '', result)
 
-        #remove text with format begins with 2 or more '-----<some text>-----'
-        result = re.sub('[-]{2,}[A-Za-z0-9]*[ ][A-Za-z0-9]*[-]{2,}', ' ', result)
 
-        #remove everything inside opening and closing bracket
-        result = re.sub(r'\[[A-Za-z0-9]*\]', '', result)
-
-        #remove all other characters not a number or letter except for:
-        # ./@-'
-        result = re.sub('[^A-Za-z0-9./@-]', ' ', result)
-
-        #replace multiple space with one space
-        result = re.sub('[ ]{2,}', ' ', result)
-
-        return result
         
