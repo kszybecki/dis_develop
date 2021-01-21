@@ -57,6 +57,9 @@ class TextProvider:
         files_to_read = list(filter(lambda y:y.is_file(), directory.iterdir()))        
         TextProvider.file_name_list = sorted(files_to_read, key=lambda x: int(x.name.replace("_", "")))                    
 
+    def get_current_file_name(self):
+        return TextProvider.file_name_list[TextProvider.file_idx]
+    
     def get_next_email_text(self):        
         file_name = TextProvider.file_name_list[TextProvider.file_idx] 
         print(file_name)
@@ -75,8 +78,9 @@ class TextProvider:
                "Cc:" not in text and
                "<<" not in text and
                "\t" not in text and
+               "- Forwarded" not in text and
                len(text.split()) > 2):
-               sentence_list.append(text)
+               sentence_list.append(text) 
 
         return sentence_list
                 

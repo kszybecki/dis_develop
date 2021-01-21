@@ -24,6 +24,7 @@ timer_log_file.close()
 
 while(text_provider.has_next()):
     body_list = text_provider.get_next_email_text()
+    schema_creator.insert_current_file_name(text_provider.get_current_file_name())
     for paragraph in body_list:
         sentences = list(map(str.strip, re.split(r'\.[ ]+?', paragraph)))        
         for sentence in sentences:
@@ -32,7 +33,7 @@ while(text_provider.has_next()):
             sentence_log_file.close()
 
             entities = ner_re_extractor.get_entities(sentence)
-            if SCHEMA_TYPE == "Relational":   
+            if SCHEMA_TYPE == "Relational":                
                 schema_creator.insert_relational_entities(entities, sentence)
                 #since 2 entities are required to predict relations, ignore entities list with less than 2
                 if len(entities)> 1:

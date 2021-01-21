@@ -9,7 +9,6 @@ from sqlite3 import Error
 
 class SchemaCreator:
 
-
     enron_relational_path = "C:\\master_repos\\dis_develop\\SQLite\\enron_relational_v2.db"
     enron_data_warehouse_path = "C:\\master_repos\\dis_develop\\SQLite\\enron_data_warehouse.db"
     prev_entities = []
@@ -24,7 +23,8 @@ class SchemaCreator:
                 self.create_sentence_table()
             else: 
                 SchemaCreator.conn = sqlite3.connect(SchemaCreator.enron_data_warehouse_path)  
-                self.create_fact_table()                
+                self.create_fact_table()
+            self.create_email_table()            
         except Error as e:
             print(e)
 
@@ -69,7 +69,6 @@ class SchemaCreator:
                 if result_row is None:                        
                     self.insert_relation_instance(relation, entity1_row[0], entity2_row[0])
 
-
     def insert_relation_instance(self, relation, entity1_id, entity2_id):
         table_name = relation["relation"]
         column_names = self.get_relation_column_names(relation)
@@ -109,7 +108,7 @@ class SchemaCreator:
 
     def insert_sentence(self, sentence):
         sentence = sentence.replace("'", "")
-        sql = "INSERT INTO Sentence (Sentence) VALUES ('" + sentence + "')"
+        sql = "INSERT INTO Sentence (SourceEmailFileId, Sentence) VALUES (" + str(SchemaCreator.current_SourceEmailFileId) + ", '" + sentence + "')"
         insert_cursor = SchemaCreator.conn.cursor()
         insert_cursor.execute(sql)
         SchemaCreator.conn.commit()
@@ -176,11 +175,30 @@ class SchemaCreator:
             """
                 CREATE TABLE IF NOT EXISTS Sentence (
                     SentenceId INTEGER PRIMARY KEY,
+                    SourceEmailFileId INTEGER,
                     Sentence TEXT
                 )
             """
         )
         SchemaCreator.conn.commit()
+
+    def create_email_table(self):
+        SchemaCreator.conn.cursor().execute(
+            """
+                CREATE TABLE IF NOT EXISTS SourceEmailFile (
+                    SourceEmailFileId INTEGER PRIMARY KEY,
+                    FileName TEXT
+                )
+            """
+        )
+        SchemaCreator.conn.commit()
+
+    def insert_current_file_name(self, file_name):
+        insert_cursor = SchemaCreator.conn.cursor()
+        sql = "INSERT INTO SourceEmailFile (FileName) VALUES ('" + str(file_name) + "')"
+        insert_cursor.execute(sql)
+        SchemaCreator.conn.commit()
+        SchemaCreator.current_SourceEmailFileId = insert_cursor.lastrowid
 
     def create_fact_table(self):
         SchemaCreator.conn.cursor().execute(

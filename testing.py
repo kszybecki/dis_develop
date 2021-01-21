@@ -28,12 +28,13 @@ import os
 from pathlib import Path
 import re
 
-paragraph = "This is exactly what we need.  Would it possible to add the prior day for each of the dates below to the pivot table.  In order to validate the curve shift on the dates below we also need the prior days ending positions."
+rootdir = "C:\\master_repos\\dis_develop\\enron_email_dataset"
 
-result = list(map(str.strip, re.split(r'\.[ ]+?', paragraph)))
+name_dir_list = sorted(os.listdir(rootdir))
+directory = Path(rootdir + "\\" + name_dir_list[0] + "\\inbox")
+files_to_read = list(filter(lambda y:y.is_file(), directory.iterdir()))
 
+file_name_list = sorted(files_to_read, key=lambda x: int(x.name.replace("_", "")))
+file_name = str(files_to_read[0])
 
-
-
-setup = ""
-
+stop = ""
