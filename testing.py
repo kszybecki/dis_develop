@@ -24,17 +24,27 @@
 #     if conn:
 #         conn.close()
 
-import os
-from pathlib import Path
-import re
+# import os
+# from pathlib import Path
+# import re
 
-rootdir = "C:\\master_repos\\dis_develop\\enron_email_dataset"
+# rootdir = "C:\\master_repos\\dis_develop\\enron_email_dataset"
 
-name_dir_list = sorted(os.listdir(rootdir))
-directory = Path(rootdir + "\\" + name_dir_list[0] + "\\inbox")
-files_to_read = list(filter(lambda y:y.is_file(), directory.iterdir()))
+# name_dir_list = sorted(os.listdir(rootdir))
+# directory = Path(rootdir + "\\" + name_dir_list[0] + "\\inbox")
+# files_to_read = list(filter(lambda y:y.is_file(), directory.iterdir()))
 
-file_name_list = sorted(files_to_read, key=lambda x: int(x.name.replace("_", "")))
-file_name = str(files_to_read[0])
+# file_name_list = sorted(files_to_read, key=lambda x: int(x.name.replace("_", "")))
+# file_name = str(files_to_read[0])
 
-stop = ""
+# stop = ""
+
+from dateutil.parser import parse
+
+try:
+    result_string = "and 27, 2002"
+
+    entity_value = str(parse(result_string).date())
+
+except:
+    print("caught")

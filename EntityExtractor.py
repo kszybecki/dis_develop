@@ -117,7 +117,7 @@ class EntityExtractor:
                         "begin_idx": begin_idx,
                         "end_idx": end_idx                 
                 })
-            except ValueError:
+            except:
                 pass  
 
     def exchange_entity_name(self, value):
