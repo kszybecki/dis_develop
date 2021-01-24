@@ -2,10 +2,12 @@
 
 import os
 import re
-#from email.parser import Parser
+from bs4 import BeautifulSoup
 from pathlib import Path
 import email
 import mailparser
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 
 class TextProvider:
 
@@ -68,8 +70,11 @@ class TextProvider:
         return self.clean_text2(body_list)
 
     def clean_text2(self, body_list):
-        sentence_list = []
+        sentence_list = []        
         for text in body_list:
+            text = text.replace("'", "")
+            text = text.replace("`", "")
+            text_length = len(text.split(" "))
             if ("-----Original Message-----" not in text and 
                "From:" not in text and 
                "To:" not in text and
@@ -79,7 +84,14 @@ class TextProvider:
                "<<" not in text and
                "\t" not in text and
                "- Forwarded" not in text and
-               len(text.split()) > 2):
+               "> > > > >" not in text and
+               "http://" not in text and
+               "******************ELSEWHERE ON ZDNET!******************" not in text and
+               "<!--" not in text and "-->" not in text and
+               "align=\"" not in text and
+               "width=\"" not in text and
+               not bool(BeautifulSoup(text, "html.parser").find()) and 
+               text_length > 2):
                sentence_list.append(text) 
 
         return sentence_list

@@ -39,12 +39,28 @@
 
 # stop = ""
 
-from dateutil.parser import parse
+from bs4 import BeautifulSoup
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module='bs4')
 
-try:
-    result_string = "and 27, 2002"
+text = "Thanks!"
 
-    entity_value = str(parse(result_string).date())
-
-except:
-    print("caught")
+text_length = len(text.split(" "))
+if ("-----Original Message-----" not in text and 
+    "From:" not in text and 
+    "To:" not in text and
+    "Subject:" not in text and 
+    "Sent" not in text and
+    "Cc:" not in text and
+    "<<" not in text and
+    "\t" not in text and
+    "- Forwarded" not in text and
+    "> > > > >" not in text and
+    "http://" not in text and
+    "******************ELSEWHERE ON ZDNET!******************" not in text and
+    "<!--" not in text and "-->" not in text and
+    "align=\"" not in text and
+    "width=\"" not in text and
+    not bool(BeautifulSoup(text, "html.parser").find()) and 
+    text_length > 2):
+    print("Yes")

@@ -7,7 +7,8 @@ import SchemaCreator
 import re
 from datetime import datetime
 
-SCHEMA_TYPE = "Relational"
+
+SCHEMA_TYPE = "DataWarehouse"
 
 sentence_log_file_path = r"C:\\master_repos\\dis_develop\\logs\\sentence_log.txt"
 relation_log_file_path = r"C:\\master_repos\\dis_develop\\logs\\relation_log.txt"
@@ -28,6 +29,9 @@ while(text_provider.has_next()):
     for paragraph in body_list:
         sentences = list(map(str.strip, re.split(r'\.[ ]+?', paragraph)))        
         for sentence in sentences:
+            text_length = len(sentence.split(" "))
+            if text_length < 2:
+                continue
             sentence_log_file = open(sentence_log_file_path, "a")
             sentence_log_file.write(sentence + "\n\n")
             sentence_log_file.close()
