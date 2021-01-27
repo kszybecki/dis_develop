@@ -12,7 +12,7 @@ SCHEMA_TYPE = "DataWarehouse"
 
 sentence_log_file_path = r"C:\\master_repos\\dis_develop\\logs\\sentence_log.txt"
 relation_log_file_path = r"C:\\master_repos\\dis_develop\\logs\\relation_log.txt"
-timer_file_path = r"C:\\master_repos\\dis_develop\\logs\\time_log.txt"
+timer_file_path = r"C:\\master_repos\\dis_develop\\logs\\data_warehouse_time_log.txt"
 
 text_provider = TextProvider.TextProvider()
 ner_re_extractor = NerReExtractor.NerReExtractor()
@@ -29,16 +29,17 @@ while(text_provider.has_next()):
     for paragraph in body_list:
         sentences = list(map(str.strip, re.split(r'\.[ ]+?', paragraph)))        
         for sentence in sentences:
-            text_length = len(sentence.split(" "))
-            if text_length < 2:
+            words_in_sentence = len(sentence.split(" "))
+            if SCHEMA_TYPE == "Relational" and words_in_sentence < 2:
                 continue
-            sentence_log_file = open(sentence_log_file_path, "a")
-            sentence_log_file.write(sentence + "\n\n")
-            sentence_log_file.close()
+            # sentence_log_file = open(sentence_log_file_path, "a")
+            # sentence_log_file.write(sentence + "\n\n")
+            # sentence_log_file.close()
 
             entities = ner_re_extractor.get_entities(sentence)
-            if SCHEMA_TYPE == "Relational":                
-                schema_creator.insert_relational_entities(entities, sentence)
+
+            if SCHEMA_TYPE == "Relational":      
+                schema_creator.insert_relational_schema(entities, sentence)          
                 #since 2 entities are required to predict relations, ignore entities list with less than 2
                 if len(entities)> 1:
                     relations = ner_re_extractor.get_relations(entities, sentence)  
@@ -49,7 +50,7 @@ while(text_provider.has_next()):
                             relation_log_file.write(relation["relation"] + "\n")
                             relation_log_file.close()
             else:
-                schema_creator.insert_dimension_entities(entities)
+                schema_creator.insert_into_data_warehouse_schema(entities)
 
 schema_creator.tear_down()
 

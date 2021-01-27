@@ -24,11 +24,14 @@ class SchemaCreator:
             else: 
                 SchemaCreator.conn = sqlite3.connect(SchemaCreator.enron_data_warehouse_path)  
                 self.create_fact_table()
+                self.create_bridge_tables()
+                self.create_dimension_tables()
+                self.create_sentence_table()
             self.create_email_table()            
         except Error as e:
             print(e)
 
-    def insert_relational_entities(self, entities, sentence):
+    def insert_relational_schema(self, entities, sentence):
         sentence_id = -1
         if len(entities) > 0:
             sentence_id = self.insert_sentence(sentence)
@@ -100,10 +103,9 @@ class SchemaCreator:
 
     def insert_entity_sentence(self, entity, entity_id, sentence_id):
         table_name = self.get_table_name(entity)
-        SchemaCreator.conn.cursor().execute(
-            "INSERT INTO " + table_name + "Sentence (SentenceId, " + table_name + "Id) " + \
+        sql = "INSERT INTO " + table_name + "Sentence (SentenceId, " + table_name + "Id) " + \
             "VALUES (" + str(sentence_id) + ", " + str(entity_id) + ")"
-        )    
+        SchemaCreator.conn.cursor().execute(sql)    
         SchemaCreator.conn.commit()
 
     def insert_sentence(self, sentence):
@@ -115,28 +117,28 @@ class SchemaCreator:
         return insert_cursor.lastrowid
 
     def create_relation_table(self, relation):
-
         sql = "CREATE TABLE IF NOT EXISTS " + relation["relation"] + " (" + relation["relation"] + "Id INTEGER PRIMARY KEY)"
         SchemaCreator.conn.cursor().execute(sql)
         SchemaCreator.conn.commit()
 
         column_names = self.get_relation_column_names(relation)
         
+        #check if column exist in relation table, if not create them
         sql = "SELECT COUNT(*) AS CNTREC FROM pragma_table_info('" + relation["relation"] + "') WHERE name='" + \
             column_names["entity1_column_name"] + "'"
         fetch_cursor = SchemaCreator.conn.execute(sql)
         result_row = fetch_cursor.fetchone()
         if result_row[0] == 0:
-            self.add_column_to_relation_table(relation["relation"], column_names["entity1_column_name"])
+            self.add_column_to_table(relation["relation"], column_names["entity1_column_name"])
 
         sql = "SELECT COUNT(*) AS CNTREC FROM pragma_table_info('" + relation["relation"] + "') WHERE name='" + \
             column_names["entity2_column_name"] + "'"
         fetch_cursor = SchemaCreator.conn.execute(sql)
         result_row = fetch_cursor.fetchone()
         if result_row[0] == 0:
-            self.add_column_to_relation_table(relation["relation"], column_names["entity2_column_name"])
+            self.add_column_to_table(relation["relation"], column_names["entity2_column_name"])
 
-    def add_column_to_relation_table(self, table_name, column_name):
+    def add_column_to_table(self, table_name, column_name):
         sql = "ALTER TABLE " + table_name + " ADD COLUMN " + column_name + " INTEGER"
         SchemaCreator.conn.execute(sql)
         SchemaCreator.conn.commit()
@@ -152,11 +154,10 @@ class SchemaCreator:
             SchemaCreator.conn.commit()
 
             #create Sentence relation table
-            if SchemaCreator.schema_type == "Relational":
-                SchemaCreator.conn.cursor().execute(
-                    "CREATE TABLE IF NOT EXISTS " + entity["name"] + "Sentence (SentenceId INTEGER, " + entity["name"] + "Id INTEGER)"
-                    )
-                SchemaCreator.conn.commit()
+            SchemaCreator.conn.cursor().execute(
+                "CREATE TABLE IF NOT EXISTS " + table_name + "Sentence (SentenceId INTEGER, " + table_name + "Id INTEGER)"
+                )
+            SchemaCreator.conn.commit()
 
             SchemaCreator.prev_entities.append(entity)   
 
@@ -202,13 +203,85 @@ class SchemaCreator:
 
     def create_fact_table(self):
         SchemaCreator.conn.cursor().execute(
-            """ 
-                CREATE TABLE IF NOT EXISTS Fact (
-                    FactId INTEGER PRIMARY KEY
-                )
-            """
+        """ 
+            CREATE TABLE IF NOT EXISTS Fact (
+                FactId INTEGER PRIMARY KEY,
+                PersonBridgeId INTEGER,
+                OrganizationBridgeId INTEGER,
+                LocationBridgeId INTEGER,
+                EmailBridgeId INTEGER,
+                DateBridgeId INTEGER
+            )
+        """
         )
         SchemaCreator.conn.commit()
+
+    def create_bridge_tables(self):
+        sql = """
+            CREATE TABLE IF NOT EXISTS PersonBridge (
+                PersonBridgeId INTEGER,
+                DimPersonId INTEGER
+            )    
+        """
+        SchemaCreator.conn.cursor().execute(sql)    
+        SchemaCreator.conn.commit()
+
+        sql = """
+            CREATE TABLE IF NOT EXISTS OrganizationBridge (
+                OrganizationBridgeId INTEGER,
+                DimOrganizationId INTEGER
+            )    
+        """
+        SchemaCreator.conn.cursor().execute(sql)    
+        SchemaCreator.conn.commit()
+
+        sql = """
+            CREATE TABLE IF NOT EXISTS LocationBridge (
+                LocationBridgeId INTEGER,
+                DimLocationId INTEGER
+            )    
+        """
+        SchemaCreator.conn.cursor().execute(sql)    
+        SchemaCreator.conn.commit()
+
+        sql = """
+            CREATE TABLE IF NOT EXISTS EmailBridge (
+                EmailBridgeId INTEGER,
+                DimEmailId INTEGER
+            )    
+        """
+        SchemaCreator.conn.cursor().execute(sql)    
+        SchemaCreator.conn.commit()
+
+        sql = """
+            CREATE TABLE IF NOT EXISTS DateBridge (
+                DateBridgeId INTEGER,
+                DimDated INTEGER
+            )    
+        """
+        SchemaCreator.conn.cursor().execute(sql)    
+        SchemaCreator.conn.commit()
+
+    def create_dimension_tables(self):
+        sql = "CREATE TABLE IF NOT EXISTS DimPerson (DimPersonId INTEGER PRIMARY KEY, Value TEXT)"
+        SchemaCreator.conn.cursor().execute(sql)    
+        SchemaCreator.conn.commit()
+
+        sql = "CREATE TABLE IF NOT EXISTS DimLocation (DimLocationId INTEGER PRIMARY KEY, Value TEXT)"
+        SchemaCreator.conn.cursor().execute(sql)    
+        SchemaCreator.conn.commit()
+
+        sql = "CREATE TABLE IF NOT EXISTS DimOrganization (DimOrganizationId INTEGER PRIMARY KEY, Value TEXT)"
+        SchemaCreator.conn.cursor().execute(sql)    
+        SchemaCreator.conn.commit()
+
+        sql = "CREATE TABLE IF NOT EXISTS DimDate (DimDateId INTEGER PRIMARY KEY, Value TEXT)"
+        SchemaCreator.conn.cursor().execute(sql)    
+        SchemaCreator.conn.commit()
+
+        sql = "CREATE TABLE IF NOT EXISTS DimEmail (DimEmailId INTEGER PRIMARY KEY, Value TEXT)"
+        SchemaCreator.conn.cursor().execute(sql)    
+        SchemaCreator.conn.commit()    
 
     def tear_down(self):
         if SchemaCreator.conn:
@@ -224,5 +297,31 @@ class SchemaCreator:
 
         return {"entity1_column_name": entity1_column_name, "entity2_column_name": entity2_column_name}
 
-    def insert_dimension_entities(self, entities):
-        stop = ""
+    def insert_into_data_warehouse_schema(self, entity_list):
+        entity_groups = self.sort_entity_list_for_dw(entity_list)
+
+        for group in entity_groups:
+
+
+
+    def sort_entity_list_for_dw(self, entity_list):
+        entity_groups = []
+        for entity in entity_list:
+            entity_list = sorted(entity_list, key=lambda x: x["name"])            
+            entity_group = []
+            entity_group_name = entity_list[0]["name"]        
+
+            for index, entity in enumerate(entity_list):            
+                if entity["name"] == entity_group_name:
+                    entity_group.append(entity)
+                else:
+                    entity_groups.append(entity_group)
+                    entity_group_name = entity["name"]
+                    entity_group = []
+                    entity_group.append(entity) 
+
+                if index == len(entity_list) - 1:
+                    entity_groups.append(entity_group)
+        #test this
+        return entity_groups
+
