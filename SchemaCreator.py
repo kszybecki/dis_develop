@@ -256,7 +256,7 @@ class SchemaCreator:
         sql = """
             CREATE TABLE IF NOT EXISTS DateBridge (
                 DateBridgeId INTEGER,
-                DimDated INTEGER
+                DimDateId INTEGER
             )    
         """
         SchemaCreator.conn.cursor().execute(sql)    
@@ -298,16 +298,17 @@ class SchemaCreator:
         return {"entity1_column_name": entity1_column_name, "entity2_column_name": entity2_column_name}
 
     def insert_into_data_warehouse_schema(self, entity_list):
-        entity_groups = self.sort_entity_list_for_dw(entity_list)
-        fact = []
-        for group in entity_groups:
-            group_name = group[0]["name"]
-            group_id = self.get_next_id_from_bridge_table(group_name)
-            fact.append({"column_name": group_name + "BridgeId", "group_id": group_id })
-            for entity in group:
-                self.insert_into_dimension_table(entity, group_id)
+        if len(entity_list) > 0:
+            entity_groups = self.sort_entity_list_for_dw(entity_list)
+            fact = []
+            for group in entity_groups:
+                group_name = group[0]["name"]
+                group_id = self.get_next_id_from_bridge_table(group_name)
+                fact.append({"column_name": group_name + "BridgeId", "group_id": group_id })
+                for entity in group:
+                    self.insert_into_dimension_table(entity, group_id)
 
-        self.insert_into_fact_table(fact)
+            self.insert_into_fact_table(fact)
 
     def get_next_id_from_bridge_table(self, group_name):
         key_column_name = group_name + "BridgeId"

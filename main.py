@@ -30,7 +30,7 @@ while(text_provider.has_next()):
         sentences = list(map(str.strip, re.split(r'\.[ ]+?', paragraph)))        
         for sentence in sentences:
             words_in_sentence = len(sentence.split(" "))
-            if SCHEMA_TYPE == "Relational" and words_in_sentence < 2:
+            if sentence == '' and (SCHEMA_TYPE == "Relational" and words_in_sentence < 2):
                 continue
             # sentence_log_file = open(sentence_log_file_path, "a")
             # sentence_log_file.write(sentence + "\n\n")
