@@ -30,10 +30,8 @@ class NerReExtractor:
                 j = i + 1
                 while j < len(entity_list):        
                     entity2 = entity_list[j]
-                    # LOGGING - here I can put in counts to see of the potential candidates, how many relations where actually found
                     relation = self.extract_relation(entity1, entity2, sentence)
-                    if relation[1] > NerReExtractor.RE_CONFIDANCE_THRESHOLD:
-                        #if relation is not None:                        
+                    if relation[1] > NerReExtractor.RE_CONFIDANCE_THRESHOLD:                  
                         relations.append({
                             "entity1_name": entity1["name"],
                             "entity1_value": entity1["value"],

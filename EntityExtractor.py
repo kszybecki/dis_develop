@@ -40,9 +40,6 @@ class EntityExtractor:
         EntityExtractor.regex_results = re.findall(EntityExtractor.emailRegEx, sentence)
         self.insert_regex_entities("EMAIL", sentence)
 
-        #do I need to log the count of entities found here? for evaluation purposes, 
-        #maybe log as a file the counts
-
         return EntityExtractor.entity_list
 
     def get_insert_index(self, begin_idx):
@@ -87,7 +84,7 @@ class EntityExtractor:
                     })
                     #log entity for validation
                     self.log_entity(entity)
-                except: # if the predicted entity instance cannot be found in the sentence, ignore sentence
+                except: # if the predicted entity instance cannot be found in the sentence, ignore entity
                     continue
 
     def insert_regex_entities(self, entity_type, sentence):

@@ -376,6 +376,6 @@ class SchemaCreator:
 
                 if index == len(entity_list) - 1:
                     entity_groups.append(entity_group)
-        #test this
+                    
         return entity_groups
 
