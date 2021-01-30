@@ -34,9 +34,9 @@ while(text_provider.has_next()):
                 continue
             if SCHEMA_TYPE == "Relational" and words_in_sentence < 2:
                 continue
-            # sentence_log_file = open(sentence_log_file_path, "a")
-            # sentence_log_file.write(sentence + "\n\n")
-            # sentence_log_file.close()
+            sentence_log_file = open(sentence_log_file_path, "a")
+            sentence_log_file.write(sentence + "\n\n")
+            sentence_log_file.close()
 
             entities = ner_re_extractor.get_entities(sentence)
 
