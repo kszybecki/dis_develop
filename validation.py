@@ -1,13 +1,8 @@
 
-
-
-
-
 import sqlite3
 from sqlite3 import Error
 import os
 import sys
-
 
 def create_table(file):
     sql = "CREATE TABLE IF NOT EXISTS " + file["table_name"] + " (Value TEXT)"
@@ -21,7 +16,7 @@ def insert_value(file, value):
 
 conn = None
 try:
-    conn = sqlite3.connect("C:\\master_repos\\dis_develop\\SQLite\\evaluation.db")
+    conn = sqlite3.connect("C:\\master_repos\\dis_develop\\SQLite\\validation.db")
     
     log_files = []
 
@@ -44,10 +39,6 @@ try:
             for line in a_file:
                 stripped_line = line.rstrip("\n")
                 insert_value(file, stripped_line)
-
-
-
-
 
 except Error as e:
     print(e)
