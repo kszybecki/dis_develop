@@ -1,0 +1,75 @@
+/*
+    counts grouped by DimOrganization and DimLocation diced by date
+*/
+select DimOrganization.Value as 'Organization', 
+       DimLocation.Value as 'Location', 
+       count(Fact.FactId) as 'Count'
+  from Fact,
+       OrganizationBridge,
+       DimOrganization,
+       LocationBridge,
+       DimLocation,
+       DimDate,
+       DateBridge
+ where Fact.OrganizationBridgeId = OrganizationBridge.OrganizationBridgeId
+   and OrganizationBridge.OrganizationBridgeId = DimOrganization.DimOrganizationId
+   and Fact.LocationBridgeId = LocationBridge.LocationBridgeId
+   and LocationBridge.LocationBridgeId = DimLocation.DimLocationId
+   and Fact.DateBridgeId = DateBridge.DateBridgeId
+   and DateBridge.DimDateId = DimDate.DimDateId
+   and REPLACE(DimDate.Value, '-', '') > '1900'
+group by DimOrganization.Value, DimLocation.Value
+order by 3 desc;
+
+/*
+    counts grouped by DimOrganization and DimLocation 
+*/
+select DimOrganization.Value as 'Organization', 
+       DimLocation.Value as 'Location', 
+       count(Fact.FactId) as 'Count'
+  from Fact,
+       OrganizationBridge,
+       DimOrganization,
+       LocationBridge,
+       DimLocation
+ where Fact.OrganizationBridgeId = OrganizationBridge.OrganizationBridgeId
+   and OrganizationBridge.OrganizationBridgeId = DimOrganization.DimOrganizationId
+   and Fact.LocationBridgeId = LocationBridge.LocationBridgeId
+   and LocationBridge.LocationBridgeId = DimLocation.DimLocationId
+group by DimOrganization.Value, DimLocation.Value
+order by 3 desc;
+
+/*
+    counts group by DimOrganization and DimDate
+*/
+select DimOrganization.Value as 'DimOrganizatin', 
+       REPLACE(DimDate.Value, '-', '') as 'DimDate', 
+       count(*) as 'Count'
+from Fact, 
+     OrganizationBridge,
+     DimOrganization,
+     DateBridge,
+     DimDate
+ where Fact.DateBridgeId = DateBridge.DateBridgeId
+   and DateBridge.DimDateId = DimDate.DimDateId
+   and Fact.OrganizationBridgeId = OrganizationBridge.OrganizationBridgeId
+   and OrganizationBridge.DimOrganizationId = DimOrganization.DimOrganizationId
+group by 1, 2
+order by 3 desc;
+
+/*
+    counts group by DimOrganization and DimDate diced by date
+*/
+select DimOrganization.Value as 'DimOrganization', count(*) as 'Count'
+from Fact, 
+     OrganizationBridge,
+     DimOrganization,
+     DateBridge,
+     DimDate
+ where Fact.DateBridgeId = DateBridge.DateBridgeId
+   and DateBridge.DimDateId = DimDate.DimDateId
+   and Fact.OrganizationBridgeId = OrganizationBridge.OrganizationBridgeId
+   and OrganizationBridge.DimOrganizationId = DimOrganization.DimOrganizationId
+   and REPLACE(DimDate.Value, '-', '') > '20011000'
+group by 1
+order by 2 desc
